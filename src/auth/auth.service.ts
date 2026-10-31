@@ -1,80 +1,145 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
-import { AuthAccount, PublicAuthAccount } from './entities/auth.entity.js';
-import { CreateAuthDto } from './dto/create-auth-dto.js';
+import { Injectable } from '@nestjs/common';
+import { User } from './entities/user-entity.js';
+import { RegisterAuthDto } from './dto/register-auth-dto.js';
 import { LoginAuthDto } from './dto/login-auth-dto.js';
-import { UpdateAuthDto } from './dto/update-auth-dto.js';
+import { ForgotPasswordDto } from './dto/forgot-password-dto.js';
+import { ResetPasswordDto } from './dto/reset-password-dto.js';
 
 @Injectable()
 export class AuthService {
-	private readonly accounts: AuthAccount[] = [
-		{ id: 1, email: 'admin@example.com', password: this.hashPassword('dummy-admin-password') },
-		{ id: 2, email: 'member@example.com', password: this.hashPassword('dummy-member-password') },
-	];
-	private nextId = 3;
 
-	private hashPassword(password: string): string {
-		const salt = randomBytes(16).toString('hex');
-		const hash = scryptSync(password, salt, 64).toString('hex');
-		return `${salt}:${hash}`;
-	}
+    private users: User[] = [
+        {
+            id: 1,
+            name: 'User 1',
+            email: 'user1@gmail.com',
+            password: '123456'
+        }
+    ];
 
-	private passwordMatches(password: string, storedPassword: string): boolean {
-		const [salt, storedHash] = storedPassword.split(':');
-		if (!salt || !storedHash) return false;
+    private resetTokens: { email: string; token: string }[] = [];
 
-		const expected = Buffer.from(storedHash, 'hex');
-		const actual = scryptSync(password, salt, expected.length);
-		return expected.length === actual.length && timingSafeEqual(expected, actual);
-	}
+    // REGISTER
+    register(data: RegisterAuthDto) {
 
-	findAll(): PublicAuthAccount[] {
-		return this.accounts.map(({ id, email }) => ({ id, email }));
-	}
+        if (data.password !== data.passwordConfirmation) {
+            return {
+                message: 'Password confirmation tidak cocok'
+            };
+        }
 
-	findById(id: number): PublicAuthAccount {
-		const account = this.accounts.find((item) => item.id === id);
-		if (!account) throw new NotFoundException(`Account with id ${id} not found`);
-		return { id: account.id, email: account.email };
-	}
+        const existingUser = this.users.find(
+            user => user.email === data.email
+        );
 
-	register(input: CreateAuthDto): PublicAuthAccount {
-		const email = input.email.trim().toLowerCase();
-		if (this.accounts.some((account) => account.email.toLowerCase() === email)) {
-			throw new ConflictException('Email is already registered');
-		}
+        if (existingUser) {
+            return {
+                message: 'Email sudah terdaftar'
+            };
+        }
 
-		const account: AuthAccount = {
-			id: this.nextId++,
-			email,
-			password: this.hashPassword(input.password),
-		};
-		this.accounts.push(account);
-		return { id: account.id, email: account.email };
-	}
+        const newUser: User = {
+            id: this.users.length + 1,
+            name: data.name,
+            email: data.email,
+            password: data.password
+        };
 
-	login(input: LoginAuthDto): PublicAuthAccount {
-		const email = input.email.trim().toLowerCase();
-		const account = this.accounts.find((item) => item.email.toLowerCase() === email);
-		if (!account || !this.passwordMatches(input.password, account.password)) {
-			throw new UnauthorizedException('Invalid email or password');
-		}
-		return { id: account.id, email: account.email };
-	}
+        this.users.push(newUser);
 
-	update(id: number, input: UpdateAuthDto): PublicAuthAccount {
-		const account = this.accounts.find((item) => item.id === id);
-		if (!account) throw new NotFoundException(`Account with id ${id} not found`);
+        return {
+            message: 'Register berhasil',
+            data: newUser
+        };
+    }
 
-		Object.assign(account, input);
-		return { id: account.id, email: account.email };
-	}
 
-	remove(id: number): boolean {
-		const accountIndex = this.accounts.findIndex((item) => item.id === id);
-		if (accountIndex === -1) throw new NotFoundException(`Account with id ${id} not found`);
+    // LOGIN
+    login(data: LoginAuthDto) {
 
-		this.accounts.splice(accountIndex, 1);
-		return true;
-	}
+        const user = this.users.find(
+            user =>
+                user.email === data.email &&
+                user.password === data.password
+        );
+
+        if (!user) {
+            return {
+                message: 'Email atau password salah'
+            };
+        }
+
+        return {
+            message: 'Login berhasil',
+            data: user
+        };
+    }
+
+
+    // FORGOT PASSWORD
+    forgotPassword(data: ForgotPasswordDto) {
+
+        const user = this.users.find(
+            user => user.email === data.email
+        );
+
+        if (!user) {
+            return {
+                message: 'Email tidak ditemukan'
+            };
+        }
+
+        const token = 'RESET-' + Date.now();
+
+        this.resetTokens.push({
+            email: data.email,
+            token: token
+        });
+
+        return {
+            message: 'Token reset password berhasil dibuat',
+            token: token
+        };
+    }
+
+
+    // RESET PASSWORD
+    resetPassword(data: ResetPasswordDto) {
+
+        const resetData = this.resetTokens.find(
+            item => item.token === data.token
+        );
+
+        if (!resetData) {
+            return {
+                message: 'Token tidak valid'
+            };
+        }
+
+        if (data.password !== data.passwordConfirmation) {
+            return {
+                message: 'Password confirmation tidak cocok'
+            };
+        }
+
+        const user = this.users.find(
+            user => user.email === resetData.email
+        );
+
+        if (!user) {
+            return {
+                message: 'User tidak ditemukan'
+            };
+        }
+
+        user.password = data.password;
+
+        this.resetTokens = this.resetTokens.filter(
+            item => item.token !== data.token
+        );
+
+        return {
+            message: 'Password berhasil direset'
+        };
+    }
 }

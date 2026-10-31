@@ -1,17 +1,16 @@
-import { IsInt, IsNotEmpty } from "class-validator";
+import { IsNotEmpty, IsInt } from 'class-validator';
 
-export class CreateBookDto{
-    @IsNotEmpty({message: 'Nama harus diisi'})
+export class CreateBookDto {
+    @IsNotEmpty({ message: 'Name is required' })
     readonly name: string;
 
-    @IsNotEmpty({message: 'Author harus diisi'})
+    @IsNotEmpty({ message: 'Author is required' })
     readonly author: string;
 
-    @IsNotEmpty({message: 'ISBN harus diisi'})
+    @IsNotEmpty({message: 'ISBN is required'})
     readonly isbn: string;
 
-    @IsNotEmpty({message: 'Published Year harus diisi'})
-    @IsInt({message: 'Published Year harus berupa angka'})
+    @IsNotEmpty({message: 'Published year must be a number'})
+    @IsInt({message: 'Published year must be an integer'})
     readonly publishedYear: number;
-
 }

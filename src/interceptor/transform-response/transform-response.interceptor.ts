@@ -2,17 +2,15 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-//buat respon
+// buat dulu respone nya seperti apa
 export interface StandardResponse<T> {
-  success: boolean;
-  message: string;
   statusCode: number;
+  message: string;
   data: T;
 }
 
-
 @Injectable()
-export class TransformResponseInterceptor <T> implements NestInterceptor<T, StandardResponse<T>> {
+export class TransformResponseInterceptor<T> implements NestInterceptor<T, StandardResponse<T>> {
   intercept(context: ExecutionContext, next: CallHandler): Observable<StandardResponse<T>> {
 
     const httpContext = context.switchToHttp();
@@ -25,9 +23,9 @@ export class TransformResponseInterceptor <T> implements NestInterceptor<T, Stan
           success: true,
           message: 'Request berhasil',
           statusCode: statusCode,
-          data: data,
+          data: data ?? null,
         };
-      }),
+      })
     );
   }
 }
