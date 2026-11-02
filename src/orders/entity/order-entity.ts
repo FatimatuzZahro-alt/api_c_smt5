@@ -3,60 +3,54 @@ import {
     PrimaryGeneratedColumn,
     Column,
     ManyToOne,
+    OneToMany,
+    OneToOne,
     JoinColumn,
     CreateDateColumn,
     UpdateDateColumn,
-    DeleteDateColumn,
-    OneToMany,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Customer } from '../../customers/entities/customers-entity.js';
-import { OrderStatus } from '../dto/create-order.js';
 import { OrderItem } from '../../order_items/entity/order-item-entity.js';
 import { Payment } from '../../payments/entity/payment-entity.js';
 import { Shipment } from '../../shipment/entity/shipment-entity.js';
-import type { Relation } from 'typeorm';
 
 @Entity('orders')
 export class Order {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'int', name: 'customer_id' })
-    customerId: number;
+    @Column({ type: 'uuid', name: 'customer_id' })
+    customerId: string;
 
-    @ManyToOne(() => Customer, (customer) => customer.orders, {
-        onDelete: 'RESTRICT',
-    })
+    @ManyToOne(() => Customer, (customer) => customer.orders, { onDelete: 'RESTRICT' })
     @JoinColumn({ name: 'customer_id' })
     customer: Relation<Customer>;
+
+    @Column({ type: 'varchar', length: 50, name: 'order_number', unique: true })
+    orderNumber: string;
+
+    @Column({ type: 'varchar', length: 30, default: 'pending' })
+    status: string;
 
     @Column({ type: 'decimal', precision: 12, scale: 2, name: 'total_amount' })
     totalAmount: number;
 
-    @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
-    status: OrderStatus;
+    @Column({ type: 'text', name: 'shipping_address', nullable: true })
+    shippingAddress: string | null;
 
-    @Column({ type: 'text', name: 'shipping_address' })
-    shippingAddress: string;
+    @OneToMany(() => OrderItem, (item) => item.order)
+    orderItems: Relation<OrderItem[]>;
 
-    @Column({ type: 'text', nullable: true })
-    notes?: string;
+    @OneToOne(() => Payment, (payment) => payment.order)
+    payment: Relation<Payment>;
+
+    @OneToOne(() => Shipment, (shipment) => shipment.order)
+    shipment: Relation<Shipment>;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
-
-    @DeleteDateColumn({ name: 'deleted_at', nullable: true })
-    deletedAt: Date;
-
-    @OneToMany(() => OrderItem, (item) => item.order)
-    orderItem: Relation<OrderItem[]>;
-
-    @OneToMany(() => Payment, (payment) => payment.order)
-    payments: Relation<Payment[]>;
-
-    @OneToMany(() => Shipment, (shipment) => shipment.order)
-    shipments: Relation<Shipment[]>;
 }

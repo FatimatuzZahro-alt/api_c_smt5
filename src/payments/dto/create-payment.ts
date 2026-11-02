@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsUUID, IsNumber, IsOptional, IsString, IsEnum, Min } from 'class-validator';
+import { IsNotEmpty, IsUUID, IsNumber, IsOptional, IsEnum, IsDateString, Min } from 'class-validator';
 
 export enum PaymentMethod {
     BANK_TRANSFER = 'bank_transfer',
@@ -21,7 +21,7 @@ export class CreatePaymentDto {
 
     @IsNotEmpty({ message: 'Metode pembayaran harus diisi' })
     @IsEnum(PaymentMethod, { message: 'Metode pembayaran tidak valid' })
-    readonly method: PaymentMethod;
+    readonly paymentMethod: PaymentMethod;
 
     @IsNotEmpty({ message: 'Jumlah pembayaran harus diisi' })
     @IsNumber({}, { message: 'Jumlah pembayaran harus berupa angka' })
@@ -33,6 +33,6 @@ export class CreatePaymentDto {
     readonly status?: PaymentStatus;
 
     @IsOptional()
-    @IsString({ message: 'ID transaksi harus berupa teks' })
-    readonly transactionId?: string;
+    @IsDateString({}, { message: 'Waktu pembayaran tidak valid' })
+    readonly paidAt?: string;
 }

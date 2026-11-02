@@ -2,40 +2,27 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
+    OneToMany,
     CreateDateColumn,
     UpdateDateColumn,
-    DeleteDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
+import { Book } from '../../books/entities/book-entity.js';
 
 @Entity('publishers')
 export class Publisher {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-    @Column({ type: 'varchar', length: 100, unique: true })
+    @Column({ type: 'varchar', length: 150 })
     name: string;
 
-    @Column({ type: 'text' })
-    address: string;
-
-    @Column({ type: 'varchar', length: 100 })
-    city: string;
-
-    @Column({ type: 'varchar', length: 20 })
-    phone: string;
-
-    @Column({ type: 'varchar', unique: true })
-    email: string;
-
-    @Column({ type: 'varchar', nullable: true })
-    website?: string;
+    @OneToMany(() => Book, (book) => book.publisher)
+    books: Relation<Book[]>;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
     @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
-
-    @DeleteDateColumn({ name: 'deleted_at', nullable: true })
-    deletedAt: Date;
 }

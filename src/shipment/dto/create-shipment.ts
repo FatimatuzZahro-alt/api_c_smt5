@@ -1,4 +1,12 @@
-import { IsNotEmpty, IsUUID, IsNumber, IsOptional, IsString, IsEnum, IsDateString, Min } from 'class-validator';
+import {
+    IsNotEmpty,
+    IsUUID,
+    IsOptional,
+    IsString,
+    IsEnum,
+    IsDateString,
+    MaxLength,
+} from 'class-validator';
 
 export enum ShipmentStatus {
     PENDING = 'pending',
@@ -15,22 +23,23 @@ export class CreateShipmentDto {
 
     @IsNotEmpty({ message: 'Nama kurir harus diisi' })
     @IsString({ message: 'Nama kurir harus berupa teks' })
+    @MaxLength(100, { message: 'Nama kurir maksimal 100 karakter' })
     readonly courier: string;
 
     @IsOptional()
     @IsString({ message: 'Nomor resi harus berupa teks' })
+    @MaxLength(100, { message: 'Nomor resi maksimal 100 karakter' })
     readonly trackingNumber?: string;
-
-    @IsNotEmpty({ message: 'Biaya pengiriman harus diisi' })
-    @IsNumber({}, { message: 'Biaya pengiriman harus berupa angka' })
-    @Min(0, { message: 'Biaya pengiriman tidak boleh negatif' })
-    readonly shippingCost: number;
 
     @IsOptional()
     @IsEnum(ShipmentStatus, { message: 'Status pengiriman tidak valid' })
     readonly status?: ShipmentStatus;
 
     @IsOptional()
-    @IsDateString({}, { message: 'Format estimasi tiba tidak valid (contoh: 2026-11-10)' })
-    readonly estimatedArrival?: string;
+    @IsDateString({}, { message: 'Waktu pengiriman tidak valid' })
+    readonly shippedAt?: string;
+
+    @IsOptional()
+    @IsDateString({}, { message: 'Waktu diterima tidak valid' })
+    readonly deliveredAt?: string;
 }

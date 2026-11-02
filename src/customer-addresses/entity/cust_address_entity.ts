@@ -12,45 +12,36 @@ import { Customer } from '../../customers/entities/customers-entity.js';
 
 @Entity('customer_addresses')
 export class CustomerAddress {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-    @Column()
-    customerId: number;
+    @Column({ type: 'uuid', name: 'customer_id' })
+    customerId: string;
 
     @ManyToOne(() => Customer, (customer) => customer.addresses, {
         onDelete: 'CASCADE',
     })
-    @JoinColumn({ name: 'customerId' })
+    @JoinColumn({ name: 'customer_id' })
     customer: Relation<Customer>;
 
-    @Column()
-    label: string;
-
-    @Column()
+    @Column({ type: 'varchar', length: 150, name: 'recipient_name' })
     recipientName: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 20 })
     phone: string;
 
     @Column({ type: 'text' })
     address: string;
 
-    @Column()
+    @Column({ type: 'varchar', length: 100 })
     city: string;
 
-    @Column()
-    province: string;
-
-    @Column({ length: 5 })
+    @Column({ type: 'varchar', length: 10, name: 'postal_code' })
     postalCode: string;
 
-    @Column({ default: false })
-    isDefault: boolean;
-
-    @CreateDateColumn()
+    @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
 
-    @UpdateDateColumn()
+    @UpdateDateColumn({ name: 'updated_at' })
     updatedAt: Date;
 }

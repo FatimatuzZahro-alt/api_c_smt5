@@ -2,45 +2,37 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    ManyToOne,
+    OneToOne,
     JoinColumn,
     CreateDateColumn,
-    UpdateDateColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 import { Order } from '../../orders/entity/order-entity.js';
-import { PaymentMethod, PaymentStatus } from '../dto/create-payment.js';
 
 @Entity('payments')
 export class Payment {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({ type: 'uuid', name: 'order_id' })
+    @Column({ type: 'uuid', name: 'order_id', unique: true })
     orderId: string;
 
-    @ManyToOne(() => Order, (order) => order.payments, { onDelete: 'RESTRICT' })
+    @OneToOne(() => Order, (order) => order.payment, { onDelete: 'RESTRICT' })
     @JoinColumn({ name: 'order_id' })
     order: Relation<Order>;
 
-    @Column({ type: 'enum', enum: PaymentMethod })
-    method: PaymentMethod;
+    @Column({ type: 'varchar', length: 50, name: 'payment_method' })
+    paymentMethod: string;
 
     @Column({ type: 'decimal', precision: 12, scale: 2 })
     amount: number;
 
-    @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
-    status: PaymentStatus;
-
-    @Column({ type: 'varchar', name: 'transaction_id', nullable: true, unique: true })
-    transactionId?: string;
+    @Column({ type: 'varchar', length: 30, default: 'pending' })
+    status: string;
 
     @Column({ type: 'timestamp', name: 'paid_at', nullable: true })
-    paidAt?: Date;
+    paidAt: Date | null;
 
     @CreateDateColumn({ name: 'created_at' })
     createdAt: Date;
-
-    @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt: Date;
 }

@@ -4,12 +4,10 @@ import {
     Column,
     ManyToOne,
     JoinColumn,
-    CreateDateColumn,
-    UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { Order } from '../../orders/entity/order-entity.js';
 import { Book } from '../../books/entities/book-entity.js';
-import type { Relation } from 'typeorm';
 
 @Entity('order_items')
 export class OrderItem {
@@ -22,7 +20,7 @@ export class OrderItem {
     @Column({ type: 'uuid', name: 'book_id' })
     bookId: string;
 
-    @ManyToOne(() => Order, (order) => order.orderItem, { onDelete: 'CASCADE' })
+    @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'order_id' })
     order: Relation<Order>;
 
@@ -36,9 +34,6 @@ export class OrderItem {
     @Column({ type: 'decimal', precision: 12, scale: 2 })
     price: number;
 
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date;
-
-    @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt: Date;
+    @Column({ type: 'decimal', precision: 12, scale: 2 })
+    subtotal: number;
 }

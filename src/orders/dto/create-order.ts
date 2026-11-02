@@ -1,32 +1,26 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsEnum, Min } from 'class-validator';
-
-export enum OrderStatus {
-    PENDING = 'pending',
-    PAID = 'paid',
-    SHIPPED = 'shipped',
-    COMPLETED = 'completed',
-    CANCELLED = 'cancelled',
-}
+import { IsNotEmpty, IsUUID, IsString, IsNumber, IsOptional, MaxLength, Min } from 'class-validator';
 
 export class CreateOrderDto {
     @IsNotEmpty({ message: 'ID pelanggan harus diisi' })
-    @IsNumber({}, { message: 'ID pelanggan harus berupa angka' })
-    readonly customerId: number;
+    @IsUUID('4', { message: 'ID pelanggan tidak valid' })
+    readonly customerId: string;
 
-    @IsNotEmpty({ message: 'Total harga harus diisi' })
-    @IsNumber({}, { message: 'Total harga harus berupa angka' })
-    @Min(0, { message: 'Total harga tidak boleh negatif' })
+    @IsNotEmpty({ message: 'Nomor pesanan harus diisi' })
+    @IsString({ message: 'Nomor pesanan harus berupa teks' })
+    @MaxLength(50, { message: 'Nomor pesanan maksimal 50 karakter' })
+    readonly orderNumber: string;
+
+    @IsOptional()
+    @IsString({ message: 'Status harus berupa teks' })
+    @MaxLength(30, { message: 'Status maksimal 30 karakter' })
+    readonly status?: string;
+
+    @IsNotEmpty({ message: 'Total harus diisi' })
+    @IsNumber({}, { message: 'Total harus berupa angka' })
+    @Min(0, { message: 'Total tidak boleh negatif' })
     readonly totalAmount: number;
 
     @IsOptional()
-    @IsEnum(OrderStatus, { message: 'Status pesanan tidak valid' })
-    readonly status?: OrderStatus;
-
-    @IsNotEmpty({ message: 'Alamat pengiriman harus diisi' })
     @IsString({ message: 'Alamat pengiriman harus berupa teks' })
-    readonly shippingAddress: string;
-
-    @IsOptional()
-    @IsString({ message: 'Catatan harus berupa teks' })
-    readonly notes?: string;
+    readonly shippingAddress?: string;
 }

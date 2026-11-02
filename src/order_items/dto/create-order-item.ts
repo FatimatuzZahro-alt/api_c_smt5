@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsUUID, IsInt, IsNumber, Min } from 'class-validator';
 
-export class CreateOrderDetailDto {
+export class CreateOrderItemDto {
     @IsNotEmpty({ message: 'ID pesanan harus diisi' })
     @IsUUID('4', { message: 'ID pesanan tidak valid' })
     readonly orderId: string;
@@ -18,4 +18,9 @@ export class CreateOrderDetailDto {
     @IsNumber({}, { message: 'Harga harus berupa angka' })
     @Min(0, { message: 'Harga tidak boleh negatif' })
     readonly price: number;
+
+    @IsNotEmpty({ message: 'Subtotal harus diisi' })
+    @IsNumber({}, { message: 'Subtotal harus berupa angka' })
+    @Min(0, { message: 'Subtotal tidak boleh negatif' })
+    readonly subtotal: number;
 }
