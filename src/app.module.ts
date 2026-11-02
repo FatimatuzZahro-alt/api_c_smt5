@@ -5,6 +5,16 @@ import { AppService } from './app.service.js';
 import { BooksModule } from './books/books.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CustomersModule } from './customers/customers.module.js';
+import { CustomerAddressesModule } from './customer-addresses/customer-addresses.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
+import { PublishersModule } from './publishers/publishers.module.js';
+import { AuthorsModule } from './authors/authors.module.js';
+import { BookAuthorsModule } from './book_authors/book_authors.module.js';
+import { OrdersModule } from './orders/orders.module.js';
+import { OrderItemsModule } from './order_items/order_items.module.js';
+import { PaymentsModule } from './payments/payments.module.js';
+import { ShipmentModule } from './shipment/shipment.module.js';
 import Joi from 'joi';
 
 
@@ -40,7 +50,27 @@ import Joi from 'joi';
 
         synchronize: configService.get<string>('NODE_ENV') == 'development'
       })
-    })
+    }),
+
+    CustomersModule,
+
+    CustomerAddressesModule,
+
+    CategoriesModule,
+
+    PublishersModule,
+
+    AuthorsModule,
+
+    BookAuthorsModule,
+
+    OrdersModule,
+
+    OrderItemsModule,
+
+    PaymentsModule,
+
+    ShipmentModule
   ],
   controllers: [AppController],
   providers: [AppService],

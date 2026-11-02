@@ -14,7 +14,7 @@ export class BooksController {
     }
 
     // mengambil data buku berdasarkan id
-    @Get(':id ')
+    @Get(':id')
     getBookById(@Param('id') id: string){  // @Param digunakan untuk mengambil parameter dari URL
         //logic untuk mengambil data buku berdasarkan id dari database
         return this.bookService.findOne((id));  // mengubah id dari string ke number
